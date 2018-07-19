@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+
 use emailaddress::EmailAddress;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
@@ -16,14 +19,14 @@ struct Attachment {
     content_type: String,
     /// The headers in the attachment
     #[serde(skip_serializing_if = "Option::is_none")]
-    custom_headers: Option<Vec<CustomHeaders>>,
+    custom_headers: Option<Vec<CustomHeader>>,
 }
 
 /// This is a representation of email headers
 /// that corresponds to the way SocketLabs represents them
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
-struct CustomHeaders {
+struct CustomHeader {
     /// The name of the header
     name: String,
     /// The value of the header
@@ -106,10 +109,11 @@ pub struct Message {
     text_body: String,
     /// The optional html part of the message
     #[serde(skip_serializing_if = "Option::is_none")]
-    text_html: Option<String>,
+    html_body: Option<String>,
     /// The optional integer ID referencing content
     /// from the Email Content Manager in the
-    /// SocketLabs Control Panel
+    /// SocketLabs Control Panel More about it:
+    /// http://www.socketlabs.com/blog/introducing-api-templates/
     #[serde(skip_serializing_if = "Option::is_none")]
     api_template: Option<String>,
     /// A SocketLabs header used to track batches of messages
@@ -123,7 +127,7 @@ pub struct Message {
     charset: Option<String>,
     /// Optional custom headers for this message
     #[serde(skip_serializing_if = "Option::is_none")]
-    custom_headers: Option<Vec<CustomHeaders>>,
+    custom_headers: Option<Vec<CustomHeader>>,
     /// A vector of recipients representing the
     /// cc'd recipients of this message
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -146,13 +150,18 @@ pub struct Message {
 }
 
 impl Message {
-    pub fn new(to: Vec<Email>, from: Email, subject: String, text_body: String) -> Message {
+    pub fn new<T: Into<String>>(address: T, name: Option<T>) -> Message {
+        let from = match name {
+            Some(name) => Email::new(address.into(), Some(name.into())),
+            None => Email::new(address.into(), None),
+        };
+
         Message {
-            to: to,
+            to: Vec::new(),
             from: from,
-            subject: subject,
-            text_body: text_body,
-            text_html: None,
+            subject: String::new(),
+            text_body: String::new(),
+            html_body: None,
             api_template: None,
             mailing_id: None,
             message_id: None,
@@ -161,8 +170,106 @@ impl Message {
             cc: None,
             bcc: None,
             reply_to: None,
+            // TODO: create add_attachment function
             attachment: None,
+            // TODO: create add_merge_data function
             merge_data: None,
+        }
+    }
+
+    /// Adds a new recipient to the Message struct.
+    pub fn add_to<T: Into<String>>(&mut self, address: T, name: Option<T>) {
+        match name {
+            Some(name) => self.to.push(Email::new(address.into(), Some(name.into()))),
+            None => self.to.push(Email::new(address.into(), None)),
+        }
+    }
+
+    /// Sets the from field in the Message struct.
+    pub fn set_from<T: Into<String>>(&mut self, address: T, name: Option<T>) {
+        match name {
+            Some(name) => self.from = Email::new(address.into(), Some(name.into())),
+            None => self.from = Email::new(address.into(), None),
+        }
+    }
+
+    /// Sets the subject field in the Message struct.
+    pub fn set_subject<T: Into<String>>(&mut self, subject: T) {
+        self.subject = subject.into()
+    }
+
+    /// Sets the text_body field in the Message struct.
+    pub fn set_text<T: Into<String>>(&mut self, text: T) {
+        self.text_body = text.into()
+    }
+
+    /// Sets the html_body field in the Message struct.
+    pub fn set_html<T: Into<String>>(&mut self, html: T) {
+        self.html_body = Some(html.into())
+    }
+
+    /// Sets the api_template field in the Message struct.
+    pub fn set_api_template<T: Into<String>>(&mut self, api_template: T) {
+        self.api_template = Some(api_template.into())
+    }
+
+    /// Sets the message_id field in the Message struct.
+    pub fn set_message_id<T: Into<String>>(&mut self, message_id: T) {
+        self.message_id = Some(message_id.into())
+    }
+
+    /// Sets the charset field in the Message struct.
+    pub fn set_charset<T: Into<String>>(&mut self, charset: T) {
+        self.charset = Some(charset.into())
+    }
+
+    /// Adds headers to the custom_header field in the Message struct
+    pub fn add_headers<T: Into<String> + Eq + Hash>(&mut self, headers: HashMap<T, T>) {
+        if self.custom_headers.is_none() {
+            self.custom_headers = Some(Vec::new());
+        }
+
+        if let Some(ref mut custom_headers) = self.custom_headers {
+            for (name, value) in headers {
+                custom_headers.push(CustomHeader {
+                    name: name.into(),
+                    value: value.into(),
+                })
+            }
+        } 
+    }
+
+    /// Adds a new cc'd recipient to the Message struct.
+    pub fn add_cc<T: Into<String>>(&mut self, address: T, name: Option<T>) {
+        let email = match name {
+            Some(name) => Email::new(address.into(), Some(name.into())),
+            None => Email::new(address.into(), None),
+        };
+
+        match self.cc {
+            Some(ref mut cc) => cc.push(email),
+            None => self.cc = Some(vec![email]),
+        }
+    }
+
+    /// Adds a new bcc'd recipient to the Message struct.
+    pub fn add_bcc<T: Into<String>>(&mut self, address: T, name: Option<T>) {
+        let email = match name {
+            Some(name) => Email::new(address.into(), Some(name.into())),
+            None => Email::new(address.into(), None),
+        };
+
+        match self.bcc {
+            Some(ref mut bcc) => bcc.push(email),
+            None => self.bcc = Some(vec![email]),
+        }
+    }
+
+    /// Sets the from field in the Message struct.
+    pub fn set_reply_to<T: Into<String>>(&mut self, address: T, name: Option<T>) {
+        match name {
+            Some(name) => self.reply_to = Some(Email::new(address.into(), Some(name.into()))),
+            None => self.reply_to = Some(Email::new(address.into(), None)),
         }
     }
 }

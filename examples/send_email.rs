@@ -1,17 +1,20 @@
 extern crate socketlabs;
 
+use std::collections::HashMap;
 use std::env;
 
-use socketlabs::message::{Email, Message};
+use socketlabs::message::Message;
 use socketlabs::request::Request;
 
 fn main() {
-    let message = Message::new(
-        vec![Email::new("foo@bar.com".to_string(), None)],
-        Email::new("bar@foo.com".to_string(), None),
-        "test subject".to_string(),
-        "baz".to_string(),
-    );
+    let mut message = Message::new("bar@foo.com", Some("Bar"));
+    message.add_to("foo@bar.com", None);
+    message.set_subject("Hello from the socketlabs-rs example");
+    message.set_text("Hello, text world!");
+    message.set_html("<p><strong>Hello, HMTL world!</strong></p>");
+    let mut headers = HashMap::new();
+    headers.insert("x-example", "hey hey hey");
+    message.add_headers(headers);
 
     let request = Request::new(
         env::var("SOCKETLABS_SERVER_ID").unwrap().parse().unwrap(),
