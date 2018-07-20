@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use emailaddress::EmailAddress;
-use serde::ser::{Serialize, SerializeStruct, Serializer};
-
 /// This is a representation of email attachments
 /// that corresponds to the way SocketLabs represents them
 #[derive(Debug, Serialize)]
@@ -35,33 +32,16 @@ struct CustomHeader {
 
 /// This is a representation of an email address
 /// plus the optional name of the owner of that address
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Email {
     /// The actual email address
-    email_address: EmailAddress,
+    email_address: String,
     /// The name of the owner of the address
     friendly_name: Option<String>,
 }
 
-// Had to implement this manually,
-// because EmailAddress doesn't implement Serialize by default.
-impl Serialize for Email {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("Email", 2)?;
-        state.serialize_field("EmailAddress", &self.email_address.to_string())?;
-        if let Some(ref friendly_name) = self.friendly_name {
-            state.serialize_field("FriendlyName", friendly_name)?;
-        }
-        state.end()
-    }
-}
-
 impl Email {
     pub fn new(email_address: String, friendly_name: Option<String>) -> Email {
-        let email_address = EmailAddress::new(&email_address).unwrap();
         Email {
             email_address: email_address,
             friendly_name: friendly_name,
@@ -236,7 +216,7 @@ impl Message {
                     value: value.into(),
                 })
             }
-        } 
+        }
     }
 
     /// Adds a new cc'd recipient to the Message struct.
