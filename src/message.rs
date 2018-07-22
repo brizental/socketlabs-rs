@@ -33,10 +33,12 @@ struct CustomHeader {
 /// This is a representation of an email address
 /// plus the optional name of the owner of that address
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct Email {
     /// The actual email address
     email_address: String,
     /// The name of the owner of the address
+    #[serde(skip_serializing_if = "Option::is_none")]
     friendly_name: Option<String>,
 }
 
@@ -130,6 +132,8 @@ pub struct Message {
 }
 
 impl Message {
+    /// Create a new Message object with all fields empty
+    /// but the `from` field.
     pub fn new<T: Into<String>>(address: T, name: Option<T>) -> Message {
         let from = match name {
             Some(name) => Email::new(address.into(), Some(name.into())),

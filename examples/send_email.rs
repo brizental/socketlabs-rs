@@ -7,8 +7,8 @@ use socketlabs::message::Message;
 use socketlabs::request::Request;
 
 fn main() {
-    let mut message = Message::new("bar@foo.com", Some("Bar"));
-    message.add_to("foo@bar.com", None);
+    let mut message = Message::new("foo@bar.com", None);
+    message.add_to("bar@foo.com", None);
     message.set_subject("Hello from the socketlabs-rs example");
     message.set_text("Hello, text world!");
     message.set_html("<p><strong>Hello, HMTL world!</strong></p>");
@@ -22,5 +22,5 @@ fn main() {
         vec![message],
     ).unwrap();
 
-    println!("{:?}", request.send().unwrap());
+    println!("{:#?}", request.send().unwrap());
 }

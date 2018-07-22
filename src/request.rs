@@ -1,13 +1,14 @@
-use reqwest::{header::ContentType, Client, Response as ReqwestResponse};
+use reqwest::{header::ContentType, Client};
 use serde_json;
 
-use error::{SocketLabsErrorKind, SocketLabsResult};
+use error::Result;
 use message::Message;
+use response::Response;
 
 static API_URL: &'static str = "https://inject.socketlabs.com/api/v1/email";
 
 /// This is the struct that will hold
-/// all SocketLabs tokens needed for
+/// all  tokens needed for
 /// Injection API authentication and also
 /// the vector with all the messages to send
 #[derive(Debug, Serialize)]
@@ -19,17 +20,9 @@ pub struct Request {
 }
 
 impl Request {
-    /// Creates a new SocketLabs client with
+    /// Creates a new  client with
     /// the given credentials
-    pub fn new(
-        server_id: u16,
-        api_key: String,
-        messages: Vec<Message>,
-    ) -> SocketLabsResult<Request> {
-        if messages.len() == 0 {
-            return Err(SocketLabsErrorKind::MessageCountError.into());
-        }
-
+    pub fn new(server_id: u16, api_key: String, messages: Vec<Message>) -> Result<Request> {
         Ok(Request {
             server_id: server_id,
             api_key: api_key,
@@ -37,8 +30,8 @@ impl Request {
         })
     }
 
-    /// Sends an email using the SocketLabs Injection API
-    pub fn send(&self) -> SocketLabsResult<ReqwestResponse> {
+    /// Sends an email using the  Injection API
+    pub fn send(&self) -> Result<Response> {
         let body = serde_json::to_string(&self)?;
         let client = Client::new();
         client
@@ -47,5 +40,6 @@ impl Request {
             .body(body)
             .send()
             .map_err(From::from)
+            .map(From::from)
     }
 }
