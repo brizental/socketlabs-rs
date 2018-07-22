@@ -1,3 +1,6 @@
+//! A representation of a request for
+//! the SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
+
 use reqwest::{header::ContentType, Client};
 use serde_json;
 
@@ -20,8 +23,8 @@ pub struct Request {
 }
 
 impl Request {
-    /// Creates a new  client with
-    /// the given credentials
+    /// Creates a new request object with
+    /// the given credentials and messages.
     pub fn new(server_id: u16, api_key: String, messages: Vec<Message>) -> Result<Request> {
         Ok(Request {
             server_id: server_id,

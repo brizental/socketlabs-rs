@@ -1,11 +1,15 @@
+//! Error definitions.
+
 use std::{fmt, result};
 
 use failure::{Backtrace, Context, Fail};
 use reqwest::Error as ReqwestError;
 use serde_json::Error as SerdeError;
 
+/// Convenience wrapper around `std::Result`.
 pub type Result<T> = result::Result<T, Error>;
 
+/// The Error type for this crate.
 #[derive(Debug)]
 pub struct Error {
     inner: Context<ErrorKind>,
@@ -33,6 +37,8 @@ impl fmt::Display for Error {
     }
 }
 
+/// The different kids of application errors
+/// this crate may return.
 #[derive(Debug, Fail)]
 pub enum ErrorKind {
     #[fail(display = "Error parsing message {}", _0)]

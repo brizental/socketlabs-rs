@@ -11,3 +11,9 @@ You must have valid SocketLabs `server_id` and `api_key` to run the example.
 ```bash
 SOCKETLABS_SERVER_ID=<your_server_id> SOCKETLABS_API_KEY=<your_api_key> cargo run --example send_email
 ```
+
+### Generate docs
+
+```bash
+cargo doc --no-deps --lib --open
+```

@@ -1,8 +1,11 @@
+//! A representation of a valid email
+//! message for SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
+
 use std::collections::HashMap;
 use std::hash::Hash;
 
 /// This is a representation of email attachments
-/// that corresponds to the way SocketLabs represents them
+/// that corresponds to the way SocketLabs represents them.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct Attachment {
@@ -20,7 +23,7 @@ struct Attachment {
 }
 
 /// This is a representation of email headers
-/// that corresponds to the way SocketLabs represents them
+/// that corresponds to the way SocketLabs represents them.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct CustomHeader {
@@ -31,7 +34,7 @@ struct CustomHeader {
 }
 
 /// This is a representation of an email address
-/// plus the optional name of the owner of that address
+/// plus the optional name of the owner of that address.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Email {
@@ -53,7 +56,7 @@ impl Email {
 
 /// This is a representation of the data storage for the
 /// inline Merge feature from SocketLabs. More about it:
-/// https://www.socketlabs.com/blog/unleash-power-merge-fields/
+/// [https://www.socketlabs.com/blog/unleash-power-merge-fields/].
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct MergeData {
@@ -68,7 +71,7 @@ struct MergeData {
 }
 
 /// Helper struct to hold the `field/value` data for
-/// the SocketLabs inline Merge feature
+/// the SocketLabs inline Merge feature.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct Data {
@@ -77,56 +80,56 @@ struct Data {
 }
 
 /// This is a representation of a valid
-/// SocketLabs email message
+/// SocketLabs email message.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Message {
-    /// A vector of recipients for this message
+    /// A vector of recipients for this message.
     to: Vec<Email>,
-    /// The sender for this message
+    /// The sender for this message.
     from: Email,
-    /// The subject of this message
+    /// The subject of this message.
     subject: String,
-    /// The text part of the message
+    /// The text part of the message.
     text_body: String,
-    /// The optional html part of the message
+    /// The optional html part of the message.
     #[serde(skip_serializing_if = "Option::is_none")]
     html_body: Option<String>,
     /// The optional integer ID referencing content
     /// from the Email Content Manager in the
     /// SocketLabs Control Panel More about it:
-    /// http://www.socketlabs.com/blog/introducing-api-templates/
+    /// http://www.socketlabs.com/blog/introducing-api-templates/.
     #[serde(skip_serializing_if = "Option::is_none")]
     api_template: Option<String>,
-    /// A SocketLabs header used to track batches of messages
+    /// A SocketLabs header used to track batches of messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     mailing_id: Option<String>,
-    /// A SocketLabs header used to tag individual messages
+    /// A SocketLabs header used to tag individual messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     message_id: Option<String>,
-    /// The charset used for this message
+    /// The charset used for this message.
     #[serde(skip_serializing_if = "Option::is_none")]
     charset: Option<String>,
-    /// Optional custom headers for this message
+    /// Optional custom headers for this message.
     #[serde(skip_serializing_if = "Option::is_none")]
     custom_headers: Option<Vec<CustomHeader>>,
     /// A vector of recipients representing the
-    /// cc'd recipients of this message
+    /// cc'd recipients of this message.
     #[serde(skip_serializing_if = "Option::is_none")]
     cc: Option<Vec<Email>>,
     /// A vector of recipients representing the
-    /// bcc'd recipients of this message
+    /// bcc'd recipients of this message.
     #[serde(skip_serializing_if = "Option::is_none")]
     bcc: Option<Vec<Email>>,
     /// The email address to be used if replying to
-    /// this email message
+    /// this email message.
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_to: Option<Email>,
     /// A vector of attached content blobs, such as images,
-    /// documents and other binary files
+    /// documents and other binary files.
     #[serde(skip_serializing_if = "Option::is_none")]
     attachment: Option<Vec<Attachment>>,
-    /// Data storage for the inline Merge feature
+    /// Data storage for the inline Merge feature.
     #[serde(skip_serializing_if = "Option::is_none")]
     merge_data: Option<MergeData>,
 }
@@ -207,7 +210,7 @@ impl Message {
         self.charset = Some(charset.into())
     }
 
-    /// Adds headers to the custom_header field in the Message struct
+    /// Adds headers to the custom_header field in the Message struct.
     pub fn add_headers<T: Into<String> + Eq + Hash>(&mut self, headers: HashMap<T, T>) {
         if self.custom_headers.is_none() {
             self.custom_headers = Some(Vec::new());

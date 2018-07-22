@@ -17,8 +17,13 @@ fn main() {
     message.add_headers(headers);
 
     let request = Request::new(
-        env::var("SOCKETLABS_SERVER_ID").unwrap().parse().unwrap(),
-        env::var("SOCKETLABS_API_KEY").unwrap().to_string(),
+        env::var("SOCKETLABS_SERVER_ID")
+            .expect("No SOCKERLABS_SERVER_ID environment variable set.")
+            .parse()
+            .expect("Error parsing SOCKERLABS_SERVER_ID."),
+        env::var("SOCKETLABS_API_KEY")
+            .expect("No SOCKERLABS_API_KEY environment variable set.")
+            .to_string(),
         vec![message],
     ).unwrap();
 

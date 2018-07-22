@@ -1,36 +1,60 @@
+//! A representation of a response from
+//! the SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
+
 use reqwest::Response as ReqwestResponse;
 use serde::de::{Deserialize, Deserializer};
 use serde_json;
 
+/// Representation of the SocketLabs AddressResult.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-struct AddressResult {
-    email_address: String,
-    accepted: bool,
+pub struct AddressResult {
+    /// The recipient address which generated the warning or error.
+    pub email_address: String,
+    /// A true or false value indicating whether or not
+    /// the message was deliverable.
+    pub accepted: bool,
+    /// The reason for message delivery failure when an error
+    /// occurs on the address-level.
     #[serde(deserialize_with = "deserialize_addressresult")]
-    error_code: AddressResultErrorCode,
+    pub error_code: AddressResultErrorCode,
 }
 
+/// Representation of the SocketLabs MessageResult.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-struct MessageResult {
-    index: u16,
+pub struct MessageResult {
+    /// The index of the message that this response represents
+    /// from the original array posted.
+    pub index: u16,
+    /// The reason for message delivery failure when an error
+    /// occurs on the message-level.
     #[serde(deserialize_with = "deserialize_messageresult")]
-    error_code: MessageResultErrorCode,
-    address_result: Option<Vec<AddressResult>>,
+    pub error_code: MessageResultErrorCode,
+    /// An array of AddressResult objects that contain the status
+    /// of each address that failed. If no messages failed this array is empty.
+    pub address_result: Option<Vec<AddressResult>>,
 }
 
+/// Representation of the SocketLabs PostResponse.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Response {
+    /// The success or failure details of the overall injection request.
     #[serde(deserialize_with = "deserialize_postmessage")]
     pub error_code: PostMessageErrorCode,
-    transaction_receipt: Option<String>,
-    message_results: Option<Vec<MessageResult>>,
+    /// A unique key generated if an unexpected error occurs during
+    /// injection that can be used by SocketLabs support to
+    /// troubleshoot the issue.
+    pub transaction_receipt: Option<String>,
+    /// An array of message result objects for messages that failed or
+    /// have bad recipients. If there were no errors this response is empty.
+    pub message_results: Option<Vec<MessageResult>>,
 }
 
 macro_rules! create_error_codes {
-    ($(($enum:ident, $func: ident, ($(($kind:ident, $display:expr)),*) )),+) => ($(
+    ($(#[$docs:meta] ($enum:ident, $func: ident, ($(($kind:ident, $display:expr)),*) )),+) => ($(
+        #[$docs]
         #[derive(Debug, Deserialize, Fail)]
         pub enum $enum {
             $(
@@ -55,6 +79,7 @@ macro_rules! create_error_codes {
 }
 
 create_error_codes! {
+    /// Return codes within the Response object, specifying the status of the injection request.
     (PostMessageErrorCode, deserialize_postmessage,
         ((Success, "Success."),
         (Warning, "There were one or more failed messages and/or recipients."),
@@ -70,6 +95,7 @@ create_error_codes! {
         (TooManyRecipients, "Too many recipients in a single message."),
         (NoValidRecipients, "A merge was attempted, but there were no valid recipients."))
     ),
+    /// Return codes within the MessageResult object, specifying the status of a specific message.
     (MessageResultErrorCode, deserialize_messageresult,
         ((Warning, "The message has one or more bad recipients."),
         (InvalidAttachment, "The message has one or more invalid attachments."),
@@ -83,6 +109,7 @@ create_error_codes! {
         (InvalidTemplateId, "The selected API Template does not exist."),
         (MessageBodyConflict, "The Html Body and Text Body cannot be set when also specifying an API Template ID."))
     ),
+    /// Return codes within the AddressResult object, specifying the status of a specific recipient.
     (AddressResultErrorCode, deserialize_addressresult,
         ((InvalidAddress, "The address did not meet specification requirements."))
     )
