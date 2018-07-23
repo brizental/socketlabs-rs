@@ -16,16 +16,16 @@ static API_URL: &'static str = "https://inject.socketlabs.com/api/v1/email";
 /// the vector with all the messages to send
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct Request {
+pub struct Request<'a> {
     server_id: u16,
     api_key: String,
-    messages: Vec<Message>,
+    messages: Vec<Message<'a>>,
 }
 
-impl Request {
+impl<'a> Request<'a> {
     /// Creates a new request object with
     /// the given credentials and messages.
-    pub fn new(server_id: u16, api_key: String, messages: Vec<Message>) -> Result<Request> {
+    pub fn new(server_id: u16, api_key: String, messages: Vec<Message<'a>>) -> Result<Request> {
         Ok(Request {
             server_id: server_id,
             api_key: api_key,

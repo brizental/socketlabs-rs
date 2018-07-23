@@ -1,14 +1,16 @@
 //! A representation of a response from
 //! the SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
 
+use std::borrow::Cow;
+
 use serde::de::{Deserialize, Deserializer};
 
 /// Representation of the SocketLabs AddressResult.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct AddressResult {
+pub struct AddressResult<'a> {
     /// The recipient address which generated the warning or error.
-    pub email_address: String,
+    pub email_address: Cow<'a, str>,
     /// A true or false value indicating whether or not
     /// the message was deliverable.
     pub accepted: bool,
@@ -21,7 +23,7 @@ pub struct AddressResult {
 /// Representation of the SocketLabs MessageResult.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct MessageResult {
+pub struct MessageResult<'a> {
     /// The index of the message that this response represents
     /// from the original array posted.
     pub index: u16,
@@ -31,23 +33,23 @@ pub struct MessageResult {
     pub error_code: MessageResultErrorCode,
     /// An array of AddressResult objects that contain the status
     /// of each address that failed. If no messages failed this array is empty.
-    pub address_result: Option<Vec<AddressResult>>,
+    pub address_result: Option<Vec<AddressResult<'a>>>,
 }
 
 /// Representation of the SocketLabs PostResponse.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct Response {
+pub struct Response<'a> {
     /// The success or failure details of the overall injection request.
     #[serde(deserialize_with = "deserialize_postmessage")]
     pub error_code: PostMessageErrorCode,
     /// A unique key generated if an unexpected error occurs during
     /// injection that can be used by SocketLabs support to
     /// troubleshoot the issue.
-    pub transaction_receipt: Option<String>,
+    pub transaction_receipt: Option<Cow<'a, str>>,
     /// An array of message result objects for messages that failed or
     /// have bad recipients. If there were no errors this response is empty.
-    pub message_results: Option<Vec<MessageResult>>,
+    pub message_results: Option<Vec<MessageResult<'a>>>,
 }
 
 macro_rules! create_error_codes {
