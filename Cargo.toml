@@ -2,6 +2,8 @@
 authors = ["Beatriz Rizental <beatriz.rizental@gmail.com>"]
 name = "socketlabs"
 version = "0.1.0"
+description = "Unofficial Rust library for the SocketLabs Injection API."
+
 [dependencies]
 failure = "0.1.1"
 failure_derive = "0.1.1"

@@ -1,9 +1,7 @@
 //! A representation of a response from
 //! the SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
 
-use reqwest::Response as ReqwestResponse;
 use serde::de::{Deserialize, Deserializer};
-use serde_json;
 
 /// Representation of the SocketLabs AddressResult.
 #[derive(Debug, Deserialize)]
@@ -113,10 +111,4 @@ create_error_codes! {
     (AddressResultErrorCode, deserialize_addressresult,
         ((InvalidAddress, "The address did not meet specification requirements."))
     )
-}
-
-impl From<ReqwestResponse> for Response {
-    fn from(mut response: ReqwestResponse) -> Response {
-        serde_json::from_str::<Response>(&response.text().unwrap()).unwrap()
-    }
 }

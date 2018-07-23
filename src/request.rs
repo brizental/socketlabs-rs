@@ -37,12 +37,11 @@ impl Request {
     pub fn send(&self) -> Result<Response> {
         let body = serde_json::to_string(&self)?;
         let client = Client::new();
-        client
+        let mut response = client
             .post(API_URL)
             .header(ContentType::json())
             .body(body)
-            .send()
-            .map_err(From::from)
-            .map(From::from)
+            .send()?;
+        serde_json::from_str::<Response>(&response.text()?).map_err(From::from)
     }
 }
