@@ -1,8 +1,11 @@
 [package]
 authors = ["Beatriz Rizental <beatriz.rizental@gmail.com>"]
 name = "socketlabs"
-version = "0.1.0"
+version = "0.1.2"
 description = "Unofficial Rust library for the SocketLabs Injection API."
+repository = "https://github.com/rust-lang/cargo"
+documentation= "https://docs.rs/socketlabs/0.1.0/socketlabs/"
+license = "MPL-2.0"
 
 [dependencies]
 failure = "0.1.1"
