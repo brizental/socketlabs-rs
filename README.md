@@ -2,7 +2,7 @@
 
 Unofficial Rust library for the SocketLabs API.
 
-socketlabs-rs is available on [crates.io](https://crates.io/crates/sendgrid) and can be included in your Cargo.toml as follows:
+socketlabs-rs is available on [crates.io](https://crates.io/crates/socketlabs) and can be included in your Cargo.toml as follows:
 
 ```toml
 [dependencies]

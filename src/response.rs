@@ -59,7 +59,7 @@ pub struct Response<'a> {
 macro_rules! create_error_codes {
     ($(#[$docs:meta] ($enum:ident, $func: ident, ($(($kind:ident, $display:expr)),*) )),+) => ($(
         #[$docs]
-        #[derive(Debug, Deserialize, Fail)]
+        #[derive(Debug, Deserialize, Fail, PartialEq)]
         pub enum $enum {
             $(
                 #[fail(display = $display)]
