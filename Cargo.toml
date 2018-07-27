@@ -3,7 +3,7 @@ authors = ["Beatriz Rizental <beatriz.rizental@gmail.com>"]
 name = "socketlabs"
 version = "0.1.2"
 description = "Unofficial Rust library for the SocketLabs Injection API."
-repository = "https://github.com/rust-lang/cargo"
+repository = "https://github.com/brizental/socketlabs-rs"
 documentation= "https://docs.rs/socketlabs/0.1.0/socketlabs/"
 license = "MPL-2.0"
 
