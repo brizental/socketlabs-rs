@@ -6,7 +6,7 @@ socketlabs-rs is available on [crates.io](https://crates.io/crates/socketlabs) a
 
 ```toml
 [dependencies]
-socketlabs = "0.1.3"
+socketlabs = "0.2.0"
 ```
 
 ## Running the example
