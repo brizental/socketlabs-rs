@@ -5,7 +5,7 @@
 //! A representation of a request for
 //! the SocketLabs [Injection API](https://www.socketlabs.com/api-reference/injection-api/).
 
-use reqwest::{header::ContentType, Client};
+use reqwest::{header::CONTENT_TYPE, Client};
 use serde_json;
 
 use error::Result;
@@ -43,7 +43,7 @@ impl<'a> Request<'a> {
         let client = Client::new();
         let mut response = client
             .post(API_URL)
-            .header(ContentType::json())
+            .header(CONTENT_TYPE, "application/json")
             .body(body)
             .send()?;
         serde_json::from_str::<Response>(&response.text()?).map_err(From::from)
